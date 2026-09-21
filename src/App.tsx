@@ -135,119 +135,10 @@ function StructureCard({ item }: { item: Structure }) {
   return <Link href={pathFor(item)} className="structure-card" data-testid={`card-structure-${item.slug}`}><b>↗</b><strong>{item.title}</strong><small>{groupLabel[item.group]}</small></Link>;
 }
 
-function ArrayPlayground({ structure, onOperationChange }: { structure: Structure; onOperationChange: (operation: string) => void }) {
-  const [values, setValues] = useState(['12', '7', '24', '18']);
-  const [input, setInput] = useState('42');
-  const [index, setIndex] = useState('2');
-  const [operation, setOperation] = useState('Insert');
-  const [highlight, setHighlight] = useState<number | null>(null);
-  const [message, setMessage] = useState('Ready for an experiment.');
-  const act = () => {
-    const i = Math.max(0, Math.min(values.length, Number(index) || 0));
-    if (operation === 'Insert') { const next = [...values]; next.splice(i, 0, input || '0'); setValues(next); setMessage(`Inserted ${input || '0'} at index ${i}.`); }
-    if (operation === 'Delete') { if (!values.length) return; const next = [...values]; const removed = next.splice(i >= values.length ? values.length - 1 : i, 1); setValues(next); setMessage(`Removed ${removed[0]} and shifted the rest.`); }
-    if (operation === 'Search') { const found = values.indexOf(input); setHighlight(found < 0 ? null : found); setMessage(found < 0 ? `${input} is not in the array.` : `Found ${input} at index ${found}.`); }
-    if (operation === 'Traverse') { setHighlight(null); setMessage(`Traversed ${values.length} cells from left to right.`); }
-  };
-  return <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} index={index} setIndex={setIndex} message={message}><div className="array-visual">{values.map((value, i) => <div className={highlight === i ? 'array-cell highlight' : 'array-cell'} key={`${value}-${i}`} data-testid={`cell-array-${i}`}>{value}<span className="array-index">[{i}]</span></div>)}</div></PlaygroundFrame>;
-}
 
-function StackPlayground({ structure, onOperationChange }: { structure: Structure; onOperationChange: (operation: string) => void }) {
-  const [values, setValues] = useState(['base', 'parse', 'render']); const [input, setInput] = useState('commit'); const [operation, setOperation] = useState('Push'); const [message, setMessage] = useState('Top is the only door in.');
-  const act = () => { if (operation === 'Push') { setValues((v) => [...v, input || 'item']); setMessage(`Pushed ${input || 'item'} onto the top.`); } if (operation === 'Pop') { if (values.length) { setMessage(`Popped ${values[values.length - 1]} from the top.`); setValues((v) => v.slice(0, -1)); } } if (operation === 'Peek') setMessage(values.length ? `Peek sees ${values[values.length - 1]}.` : 'The stack is empty.'); };
-  return <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}><div className="stack-visual">{values.map((value, i) => <div className="stack-cell" key={`${value}-${i}`}>{value}</div>)}</div></PlaygroundFrame>;
-}
+import { lazy, Suspense } from 'react';
 
-function QueuePlayground({ structure, onOperationChange }: { structure: Structure; onOperationChange: (operation: string) => void }) {
-  const [values, setValues] = useState(['Ada', 'Linus', 'Grace']); const [input, setInput] = useState('Katherine'); const [operation, setOperation] = useState('Enqueue'); const [message, setMessage] = useState('The oldest arrival leaves first.');
-  const act = () => { if (operation === 'Enqueue') { setValues((v) => [...v, input || 'guest']); setMessage(`${input || 'guest'} joined at the tail.`); } if (operation === 'Dequeue') { if (values.length) { setMessage(`${values[0]} left from the head.`); setValues((v) => v.slice(1)); } } if (operation === 'Peek') setMessage(values.length ? `${values[0]} is next.` : 'The queue is empty.'); };
-  return <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}><div className="queue-visual"><span style={{ font: '10px var(--app-font-mono)', color: 'hsl(var(--muted-foreground))' }}>HEAD</span>{values.map((value, i) => <span className="queue-cell" key={`${value}-${i}`}>{value}</span>)}<span style={{ font: '10px var(--app-font-mono)', color: 'hsl(var(--muted-foreground))' }}>TAIL</span></div></PlaygroundFrame>;
-}
-
-type TreeItem = { value: number; left?: TreeItem; right?: TreeItem };
-function addTree(node: TreeItem | undefined, value: number): TreeItem { if (!node) return { value }; if (value < node.value) return { ...node, left: addTree(node.left, value) }; return { ...node, right: addTree(node.right, value) }; }
-function TreeNode({ node }: { node?: TreeItem }) { if (!node) return <span style={{ color: 'hsl(var(--muted-foreground))', font: '11px var(--app-font-mono)' }}>empty</span>; return <div className="tree-node"><span>{node.value}</span><div className="tree-children"><div className="tree-child"><TreeNode node={node.left} /></div><div className="tree-child"><TreeNode node={node.right} /></div></div></div>; }
-function BSTPlayground({ structure, onOperationChange }: { structure: Structure; onOperationChange: (operation: string) => void }) {
-  const [values, setValues] = useState([42, 19, 64, 8, 27, 55, 71]); const [input, setInput] = useState('33'); const [operation, setOperation] = useState('Insert'); const [message, setMessage] = useState('Every left turn is smaller; every right turn is larger.'); const root = useMemo(() => values.reduce<TreeItem | undefined>((tree, value) => addTree(tree, value), undefined), [values]);
-  const act = () => { const number = Number(input); if (!Number.isFinite(number)) return; if (operation === 'Insert') { if (values.includes(number)) setMessage(`${number} is already in the tree.`); else { setValues((v) => [...v, number]); setMessage(`Inserted ${number}; follow the comparisons.`); } } if (operation === 'Search') setMessage(values.includes(number) ? `${number} is found on the path.` : `${number} is not in this tree.`); if (operation === 'Traverse') setMessage(`In-order traversal: ${[...values].sort((a, b) => a - b).join(' → ')}.`); };
-  return <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}><div className="tree-visual"><TreeNode node={root} /></div></PlaygroundFrame>;
-}
-
-function SharedPlayground({ structure, onOperationChange }: { structure: Structure; onOperationChange: (operation: string) => void }) {
-  const [values, setValues] = useState(['node A', 'node B', 'node C']); const [input, setInput] = useState('node D'); const [operation, setOperation] = useState(structure.operations[0]); const [message, setMessage] = useState('This visualizer keeps the core idea in view.');
-  const act = () => { if (/insert|add|append|push|set|put/i.test(operation)) { setValues((v) => [...v, input || 'new value']); setMessage(`Applied ${operation.toLowerCase()} with ${input || 'new value'}.`); } else if (/delete|remove|extract|evict|clear/i.test(operation)) { setValues((v) => v.slice(0, -1)); setMessage(`Applied ${operation.toLowerCase()} to the latest item.`); } else setMessage(`${operation} inspected the current state.`); };
-  return <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}><div className="shared-visual"><div className="shared-visual-mark"><span>{values.join('  ·  ') || 'empty structure'}</span></div><p>State changes stay local to this browser session so you can experiment freely.</p></div></PlaygroundFrame>;
-}
-
-function PlaygroundFrame({ title, operation, setOperation, onOperationChange, operations, onAction, input, setInput, index, setIndex, message, children }: { title: string; operation: string; setOperation: (v: string) => void; onOperationChange: (operation: string) => void; operations: string[]; onAction: () => void; input: string; setInput: (v: string) => void; index?: string; setIndex?: (v: string) => void; message: string; children: ReactNode }) {
-  const frameRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ pointerId: number; startX: number; startY: number; originX: number; originY: number } | null>(null);
-  const [view, setView] = useState({ x: 0, y: 0, scale: 1 });
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(document.fullscreenElement === frameRef.current);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  const zoomBy = (amount: number) => setView((current) => ({ ...current, scale: Math.min(2.2, Math.max(0.5, Number((current.scale + amount).toFixed(2)))) }));
-  const resetView = () => setView({ x: 0, y: 0, scale: 1 });
-  const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) await frameRef.current?.requestFullscreen?.();
-      else if (document.fullscreenElement === frameRef.current) await document.exitFullscreen();
-    } catch {
-      // Browsers can reject fullscreen when the permission is unavailable.
-    }
-  };
-  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    dragRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, originX: view.x, originY: view.y };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current) return;
-    const drag = dragRef.current;
-    setView((current) => ({ ...current, x: drag.originX + event.clientX - drag.startX, y: drag.originY + event.clientY - drag.startY }));
-  };
-  const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current) return;
-    dragRef.current = null;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-  };
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    zoomBy(event.deltaY > 0 ? -0.1 : 0.1);
-  };
-  const handleCanvasKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    const movements: Record<string, { x: number; y: number }> = { ArrowLeft: { x: 36, y: 0 }, ArrowRight: { x: -36, y: 0 }, ArrowUp: { x: 0, y: 36 }, ArrowDown: { x: 0, y: -36 } };
-    const movement = movements[event.key];
-    if (!movement) return;
-    event.preventDefault();
-    setView((current) => ({ ...current, x: current.x + movement.x, y: current.y + movement.y }));
-  };
-
-  return <div ref={frameRef} className="panel playground">
-    <div className="panel-heading">
-      <div><h2>Interactive playground</h2><small>LOCAL STATE / SAFE TO BREAK</small></div>
-      <div className="playground-actions">
-        <div className="view-controls" aria-label="Canvas zoom controls">
-          <button className="view-button" onClick={() => zoomBy(-0.1)} aria-label="Zoom out" data-testid="button-zoom-out">−</button>
-          <button className="view-level" onClick={resetView} aria-label="Reset canvas view" data-testid="button-reset-view">{Math.round(view.scale * 100)}%</button>
-          <button className="view-button" onClick={() => zoomBy(0.1)} aria-label="Zoom in" data-testid="button-zoom-in">+</button>
-        </div>
-        <button className="view-button view-reset" onClick={resetView} data-testid="button-reset-canvas">Reset view</button>
-        <button className="view-button fullscreen-button" onClick={toggleFullscreen} data-testid="button-fullscreen">{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</button>
-      </div>
-    </div>
-    <div className="lab-controls"><select className="field-select" style={{ width: 148 }} value={operation} onChange={(e) => { setOperation(e.target.value); onOperationChange(e.target.value); }} aria-label={`${title} operation`} data-testid={`select-operation-${title.toLowerCase().replaceAll(' ', '-')}`}>{operations.map((item) => <option key={item}>{item}</option>)}</select><input className="field-input" value={input} onChange={(e) => setInput(e.target.value)} aria-label="Value" data-testid="input-playground-value" />{setIndex && index !== undefined && <input className="field-input" value={index} onChange={(e) => setIndex(e.target.value)} aria-label="Index" data-testid="input-playground-index" /> }<button className="button-primary" onClick={onAction} data-testid="button-run-operation">Run {operation}</button></div>
-    <div className="visual-stage visual-viewport" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp} onWheel={handleWheel} onKeyDown={handleCanvasKeyDown} tabIndex={0} role="region" aria-label={`${title} infinite playground`} data-testid="playground-canvas">
-      <div className="playground-plane" style={{ transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})` }}>{children}</div>
-      <div className="canvas-hint">Drag to pan · Scroll to zoom · Arrow keys to move</div>
-    </div>
-    <div className="lab-body"><div className="status-line" data-testid="status-playground">{message}</div></div>
-  </div>;
-}
+const toPascalCase = (str: string) => str.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('') + 'Playground';
 
 function Pseudocode({ structure, operation }: { structure: Structure; operation: string }) {
   const code = operation.toLowerCase().includes('search') || operation.toLowerCase().includes('find') ? `function search(target):\n  current = root\n  while current exists:\n    if current.value == target:\n      return FOUND\n    current = next(current, target)\n  return NOT_FOUND` : operation.toLowerCase().includes('delete') || operation.toLowerCase().includes('remove') ? `function remove(target):\n  locate target and its neighbor\n  reconnect the two sides\n  release the old node\n  return updated structure` : operation.toLowerCase().includes('traverse') || operation.toLowerCase().includes('bfs') || operation.toLowerCase().includes('dfs') ? `function traverse(start):\n  frontier = [start]\n  while frontier is not empty:\n    current = take(frontier)\n    visit(current)\n    add unseen neighbors to frontier` : `function ${operation.toLowerCase().replaceAll(' ', '_')}(value):\n  choose the next position\n  preserve the structure's invariant\n  place value in the new position\n  return updated structure`;
@@ -261,8 +152,10 @@ function StructurePage({ group }: { group: Group }) {
   const [activeOperation, setActiveOperation] = useState(structure?.operations[0] ?? 'Insert');
   if (!structure) return <NotFound />;
   const operationProps = { structure, onOperationChange: setActiveOperation };
-  const playground = structure.slug === 'array' ? <ArrayPlayground {...operationProps} /> : structure.slug === 'stack' ? <StackPlayground {...operationProps} /> : structure.slug === 'queue' ? <QueuePlayground {...operationProps} /> : structure.slug === 'binary-search-tree' ? <BSTPlayground {...operationProps} /> : <SharedPlayground {...operationProps} />;
-  return <><Topbar /><main className="tgk-shell"><section className="page-hero"><Link href="/" className="crumb" data-testid="link-back-catalog">← back to catalog</Link><h1>{structure.title}<span>.</span></h1><p>{structure.summary}</p><div className="tag-row">{structure.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></section><section className="learning-layout"><div>{playground}<div className="notes-grid"><div className="note-card"><div className="big-o">{structure.complexity.split(' · ')[0]}</div><h3>Complexity snapshot</h3><p>{structure.complexity}</p></div><div className="note-card"><h3>Where it shows up</h3><p>{structure.realWorld}</p></div><div className="note-card"><h3>Developer note</h3><p>{structure.insight}</p></div></div></div><Pseudocode structure={structure} operation={activeOperation} /></section><div className="support-callout"><div><h2>Keep the lab open.</h2><p>Enjoyed learning? Help us improve TGK Learning by donating.</p>{supportMessage && <div className="support-message">{supportMessage}</div>}</div><button className="button-quiet" onClick={() => setSupportMessage('A donation link will be available here in a future release.')} data-testid="button-future-donation">Future donation link</button></div></main><Footer /></>;
+  
+  const Component = lazy(() => import(`./components/playgrounds/${structure.group}/${toPascalCase(structure.slug)}.tsx`));
+
+  return <><Topbar /><main className="tgk-shell"><section className="page-hero"><Link href="/" className="crumb" data-testid="link-back-catalog">← back to catalog</Link><h1>{structure.title}<span>.</span></h1><p>{structure.summary}</p><div className="tag-row">{structure.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></section><section className="learning-layout"><div><Suspense fallback={<div>Loading playground...</div>}><Component {...operationProps} /></Suspense><div className="notes-grid"><div className="note-card"><div className="big-o">{structure.complexity.split(' · ')[0]}</div><h3>Complexity snapshot</h3><p>{structure.complexity}</p></div><div className="note-card"><h3>Where it shows up</h3><p>{structure.realWorld}</p></div><div className="note-card"><h3>Developer note</h3><p>{structure.insight}</p></div></div></div><Pseudocode structure={structure} operation={activeOperation} /></section><div className="support-callout"><div><h2>Keep the lab open.</h2><p>Enjoyed learning? Help us improve TGK Learning by donating.</p>{supportMessage && <div className="support-message">{supportMessage}</div>}</div><button className="button-quiet" onClick={() => setSupportMessage('A donation link will be available here in a future release.')} data-testid="button-future-donation">Future donation link</button></div></main><Footer /></>;
 }
 
 function About() {
