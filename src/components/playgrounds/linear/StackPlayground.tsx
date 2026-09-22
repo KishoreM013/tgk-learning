@@ -14,7 +14,7 @@ export default function StackPlayground({ structure, onOperationChange }: any) {
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Push' ? [{ label: 'Item', value: input, setValue: setInput }] : []} message={message}>
       <div className="stack-visual">
         {values.map((value, i) => (
           <div className="stack-cell" key={`${value}-${i}`}>{value}</div>

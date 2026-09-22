@@ -39,7 +39,7 @@ export default function CircularQueuePlayground({ structure, onOperationChange }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Enqueue' ? [{ label: 'Item', value: input, setValue: setInput }] : []} message={message}>
       <div className="array-visual">
         {buffer.map((val, i) => (
           <div key={i} className="array-cell" style={{ position: 'relative', borderStyle: (i === head || i === tail) ? 'dashed' : 'solid', borderColor: i === head ? 'green' : i === tail ? 'red' : undefined }}>

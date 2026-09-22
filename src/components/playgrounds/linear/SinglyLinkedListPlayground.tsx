@@ -14,7 +14,7 @@ export default function SinglyLinkedListPlayground({ structure, onOperationChang
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Insert' ? [{ label: 'Node value', value: input, setValue: setInput }] : []} message={message}>
       <div className="queue-visual">
         {values.map((value, i) => (
           <span key={`${value}-${i}`} style={{ display: 'flex', alignItems: 'center' }}>

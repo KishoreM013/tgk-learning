@@ -8,7 +8,8 @@ export default function HashmapPlayground({ structure, onOperationChange }: any)
     { key: 'car', value: 'vehicle' },
     { key: 'dog', value: 'animal' }
   ]);
-  const [input, setInput] = useState('cat, animal');
+  const [key, setKey] = useState('cat');
+  const [value, setValue] = useState('animal');
   const [operation, setOperation] = useState(structure.operations[0]);
   const [message, setMessage] = useState('Hash structure initialized.');
 
@@ -19,53 +20,56 @@ export default function HashmapPlayground({ structure, onOperationChange }: any)
       return;
     }
     
-    const parts = input.split(',');
-    const key = parts[0]?.trim();
-    const val = parts[1]?.trim() || '';
+    const trimmedKey = key.trim();
+    const trimmedValue = value.trim();
 
-    if (!key) {
+    if (!trimmedKey) {
       setMessage('Please enter a valid key.');
       return;
     }
 
     if (operation.includes('Add') || operation.includes('Set') || operation.includes('Put')) {
-      const idx = entries.findIndex(e => e.key === key);
+      if (!trimmedValue) {
+        setMessage('A value is required when setting a key.');
+        return;
+      }
+      const idx = entries.findIndex(e => e.key === trimmedKey);
       const newEntries = [...entries];
       if (idx >= 0) {
-        newEntries[idx] = { key, value: val, color: 'hsl(var(--accent))' };
-        setMessage(`Updated ${key}.`);
+        newEntries[idx] = { key: trimmedKey, value: trimmedValue, color: 'hsl(var(--accent))' };
+        setMessage(`Updated ${trimmedKey}.`);
       } else {
-        newEntries.push({ key, value: val, color: 'hsl(var(--destructive))' });
-        setMessage(`Added ${key}.`);
+        newEntries.push({ key: trimmedKey, value: trimmedValue, color: 'hsl(var(--destructive))' });
+        setMessage(`Added ${trimmedKey}.`);
       }
       // Reset colors of others
       newEntries.forEach(e => { if (e.key !== key) e.color = undefined; });
       setEntries(newEntries);
     } else if (operation.includes('Get') || operation.includes('Search') || operation.includes('Check') || operation.includes('Test')) {
-      const found = entries.find(e => e.key === key);
+      const found = entries.find(e => e.key === trimmedKey);
       if (found) {
         const newEntries = [...entries];
-        newEntries.forEach(e => e.color = e.key === key ? 'hsl(var(--accent))' : undefined);
+        newEntries.forEach(e => e.color = e.key === trimmedKey ? 'hsl(var(--accent))' : undefined);
         setEntries(newEntries);
-        setMessage(`Found ${key}${found.value ? ' -> ' + found.value : ''}.`);
+        setMessage(`Found ${trimmedKey}${found.value ? ' -> ' + found.value : ''}.`);
       } else {
-        setMessage(`${key} not found.`);
+        setMessage(`${trimmedKey} not found.`);
       }
     } else if (operation.includes('Delete') || operation.includes('Remove')) {
-      const filtered = entries.filter(e => e.key !== key);
+      const filtered = entries.filter(e => e.key !== trimmedKey);
       if (filtered.length < entries.length) {
         setEntries(filtered);
-        setMessage(`Removed ${key}.`);
+        setMessage(`Removed ${trimmedKey}.`);
       } else {
-        setMessage(`${key} was not in the structure.`);
+        setMessage(`${trimmedKey} was not in the structure.`);
       }
     } else {
-      setMessage(`Simulated ${operation} on ${key}`);
+      setMessage(`Simulated ${operation} on ${trimmedKey}`);
     }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation.includes('Set') || operation.includes('Put') ? [{ label: 'Key', value: key, setValue: setKey }, { label: 'Value', value, setValue }] : operation.includes('Get') || operation.includes('Search') || operation.includes('Check') || operation.includes('Test') || operation.includes('Delete') || operation.includes('Remove') ? [{ label: 'Key', value: key, setValue: setKey }] : []} message={message}>
       <div style={{ paddingTop: 20 }}>
         <HashMapVisualizer entries={entries} />
       </div>

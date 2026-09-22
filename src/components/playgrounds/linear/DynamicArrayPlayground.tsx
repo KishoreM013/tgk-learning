@@ -33,7 +33,7 @@ export default function DynamicArrayPlayground({ structure, onOperationChange }:
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Append' || operation === 'Search' ? [{ label: 'Value', value: input, setValue: setInput }] : []} message={message}>
       <div className="array-visual">
         {Array.from({ length: capacity }).map((_, i) => (
           <div className="array-cell" key={i} style={{ opacity: i < values.length ? 1 : 0.3, borderStyle: i < values.length ? 'solid' : 'dashed' }}>

@@ -59,22 +59,37 @@ export default function BPlusTreePlayground({ structure, onOperationChange }: an
     return { ...node, children: newChildren };
   };
 
+  const deleteKey = (node: BNode, k: number): BNode => {
+    if (node.children.length === 0) {
+      return { ...node, keys: node.keys.filter((value) => value !== k) };
+    }
+    const idx = node.keys.findIndex((value) => value >= k);
+    const targetIndex = idx === -1 ? node.children.length - 1 : idx;
+    const newChildren = [...node.children];
+    newChildren[targetIndex] = deleteKey(newChildren[targetIndex], k);
+    const updatedKeys = node.keys.filter((value) => value !== k);
+    return { ...node, keys: updatedKeys, children: newChildren };
+  };
+
   const act = () => {
     const val = parseInt(input);
     if (operation === 'Insert') {
       if (isNaN(val)) return;
       const newRoot = insertKey(root, val);
       if (newRoot.keys.length > 3) {
-        // split root
         const mid = newRoot.keys[1];
         const left = { id: Date.now(), keys: [newRoot.keys[0]], children: newRoot.children.slice(0, 2) };
         const right = { id: Date.now()+1, keys: newRoot.keys.slice(2), children: newRoot.children.slice(2) };
         setRoot({ id: Date.now()+2, keys: [mid], children: [left, right] });
-        setMessage(`Inserted \${val}. Root overflowed and split!`);
+        setMessage(`Inserted ${val}. Root overflowed and split!`);
       } else {
         setRoot(newRoot);
-        setMessage(`Inserted \${val}.`);
+        setMessage(`Inserted ${val}.`);
       }
+    } else if (operation === 'Delete') {
+      if (isNaN(val)) return;
+      setRoot(deleteKey(root, val));
+      setMessage(`Deleted ${val} from the B+ Tree.`);
     } else {
       setMessage('Search/Split trigger handled visually via Insert.');
     }

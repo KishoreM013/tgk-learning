@@ -74,6 +74,38 @@ export default function TriePlayground({ structure, onOperationChange }: any) {
         setRoot(newRoot);
         setMessage(`Inserted "${word}". End of word marked with filled circle.`);
       }
+    } else if (operation === 'Delete') {
+      let current = root;
+      for (const char of word) {
+        if (!current.children[char]) {
+          setMessage(`"${word}" is not in the Trie.`);
+          return;
+        }
+        current = current.children[char];
+      }
+      if (!current.isEndOfWord) {
+        setMessage(`"${word}" is a prefix, not a full word.`);
+        return;
+      }
+      const newRoot = cloneTrie(root);
+      const path: TrieNode[] = [];
+      let cursor = newRoot;
+      for (const char of word) {
+        path.push(cursor);
+        cursor = cursor.children[char];
+      }
+      cursor.isEndOfWord = false;
+      for (let i = path.length - 1; i >= 0; i--) {
+        const node = path[i];
+        const childKey = word[i];
+        const child = node.children[childKey];
+        if (!child) continue;
+        if (!child.isEndOfWord && Object.keys(child.children).length === 0) {
+          delete node.children[childKey];
+        }
+      }
+      setRoot(newRoot);
+      setMessage(`Deleted "${word}" from the Trie.`);
     } else if (operation === 'Search') {
       let current = root;
       for (const char of word) {
@@ -102,7 +134,7 @@ export default function TriePlayground({ structure, onOperationChange }: any) {
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Insert', 'Delete', 'Search', 'Prefix'].includes(operation) ? [{ label: operation === 'Prefix' ? 'Prefix' : 'Word', value: input, setValue: setInput }] : []} message={message}>
       <div className="tree-visual" style={{ minHeight: 300, paddingTop: 20 }}>
         <NTreeNode node={root} />
       </div>

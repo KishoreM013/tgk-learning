@@ -31,7 +31,29 @@ export default function NAryTreePlayground({ structure, onOperationChange }: any
     ]
   }), []);
 
+  const removeNode = (node: NNode, value: string): NNode | undefined => {
+    const children = node.children?.map((child) => removeNode(child, value)).filter((child): child is NNode => Boolean(child));
+    if (node.value === value) {
+      return undefined;
+    }
+    return children && children.length > 0 ? { ...node, children } : { ...node, children: children && children.length > 0 ? children : undefined };
+  };
+
   const act = () => {
+    if (operation === 'Insert') {
+      setMessage(`Action triggered: ${operation} with ${input}`);
+      return;
+    }
+    if (operation === 'Delete') {
+      const target = input.trim();
+      const next = removeNode(root, target);
+      if (!next) {
+        setMessage(`Could not delete ${target} from the tree.`);
+        return;
+      }
+      setMessage(`Deleted ${target} from the N-ary tree.`);
+      return;
+    }
     setMessage(`Action triggered: ${operation} with ${input}`);
   };
 

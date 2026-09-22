@@ -23,9 +23,31 @@ export default function BinaryTreePlayground({ structure, onOperationChange }: a
   const act = () => {
     const number = Number(input);
     if (!Number.isFinite(number)) return;
-    if (operation === 'Insert') { setValues((v) => [...v, number]); setMessage(`Inserted ${number} into the next available slot.`); }
-    if (operation === 'Traverse') setMessage(`Level-order: ${values.join(' → ')}.`);
-    if (operation === 'Reset') { setValues([]); setMessage('Tree cleared.'); }
+    if (operation === 'Insert') {
+      setValues((v) => [...v, number]);
+      setMessage(`Insert ${number}: place it in the next available parent slot, then continue walking the level-order structure.`);
+    }
+    if (operation === 'Delete') {
+      if (values.length === 0) {
+        setMessage('Delete: the tree is already empty.');
+        return;
+      }
+      const next = values.filter((value) => value !== number);
+      if (next.length === values.length) {
+        setMessage(`Delete ${number}: value not found, so the tree structure stays unchanged.`);
+        return;
+      }
+      setValues(next);
+      setMessage(`Delete ${number}: remove the matching node and reconnect the remaining siblings in the same level-order tree.`);
+    }
+    if (operation === 'Traverse') {
+      if (!values.includes(number)) {
+        setMessage(`Traverse ${number}: not found in this tree, so the walk ends without a match.`);
+        return;
+      }
+      setMessage(`Traverse ${number}: found in the tree at level-order sequence ${values.join(' → ')}; this is the path visited while checking the target.`);
+    }
+    if (operation === 'Reset') { setValues([]); setMessage('Reset: tree cleared, so the traversal stack is empty.'); }
   };
 
   return (

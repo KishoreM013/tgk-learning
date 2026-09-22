@@ -50,6 +50,40 @@ function insertAVL(node: TreeItem | undefined, value: number): TreeItem {
   return node;
 }
 
+function minValue(node: TreeItem): number {
+  let current = node;
+  while (current.left) current = current.left;
+  return current.value;
+}
+
+function deleteAVL(node: TreeItem | undefined, value: number): TreeItem | undefined {
+  if (!node) return node;
+  if (value < node.value) node.left = deleteAVL(node.left, value);
+  else if (value > node.value) node.right = deleteAVL(node.right, value);
+  else {
+    if (!node.left || !node.right) return node.left ?? node.right;
+    const successor = minValue(node.right!);
+    node.value = successor;
+    node.right = deleteAVL(node.right, successor);
+  }
+
+  updateHeight(node);
+  const balance = balanceFactor(node);
+
+  if (balance > 1 && balanceFactor(node.left!) >= 0) return rightRotate(node);
+  if (balance > 1 && balanceFactor(node.left!) < 0) {
+    node.left = leftRotate(node.left!);
+    return rightRotate(node);
+  }
+  if (balance < -1 && balanceFactor(node.right!) <= 0) return leftRotate(node);
+  if (balance < -1 && balanceFactor(node.right!) > 0) {
+    node.right = rightRotate(node.right!);
+    return leftRotate(node);
+  }
+
+  return node;
+}
+
 function TreeNode({ node }: { node?: TreeItem }) {
   if (!node) return <span style={{ color: 'hsl(var(--muted-foreground))', font: '11px var(--app-font-mono)' }}>empty</span>;
   return (
@@ -85,6 +119,14 @@ export default function AvlTreePlayground({ structure, onOperationChange }: any)
         setValues([...values, num]);
         setMessage(`Inserted ${num} and rebalanced if necessary.`);
       } else setMessage(`${num} is already in the tree.`);
+    }
+    if (operation === 'Delete') {
+      if (!values.includes(num)) {
+        setMessage(`${num} is not in the tree.`);
+        return;
+      }
+      setValues((current) => current.filter((value) => value !== num));
+      setMessage(`Deleted ${num} and rebalanced the tree.`);
     }
     if (operation === 'Rotate') {
       setMessage('Rotations happen automatically on insert.');

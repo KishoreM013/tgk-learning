@@ -15,7 +15,7 @@ export default function DequePlayground({ structure, onOperationChange }: any) {
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation.includes('Push') ? [{ label: 'Item', value: input, setValue: setInput }] : []} message={message}>
       <div className="queue-visual">
         <span style={{ font: '10px var(--app-font-mono)', color: 'hsl(var(--muted-foreground))' }}>FRONT</span>
         {values.map((value, i) => <span className="queue-cell" key={`${value}-${i}`}>{value}</span>)}

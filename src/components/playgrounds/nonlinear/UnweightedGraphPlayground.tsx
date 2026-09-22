@@ -10,17 +10,23 @@ export default function UnweightedGraphPlayground({ structure, onOperationChange
   const [message, setMessage] = useState('Graph loaded.');
 
   const act = () => {
-    
-    if (operation.includes('edge')) {
+    if (operation.includes('Add')) {
       const parts = input.split(',');
       if (parts.length >= 2) {
-        setEdges([...edges, { source: parts[0].trim(), target: parts[1].trim(), directed: false }]);
+        setEdges((current) => [...current, { source: parts[0].trim(), target: parts[1].trim(), directed: false }]);
         setMessage('Added unweighted edge.');
+      }
+    } else if (operation.includes('Delete')) {
+      const parts = input.split(',');
+      if (parts.length >= 2) {
+        const source = parts[0].trim();
+        const target = parts[1].trim();
+        setEdges((current) => current.filter((edge) => !(edge.source === source && edge.target === target && edge.directed === false)));
+        setMessage(`Deleted edge ${source} — ${target}.`);
       }
     } else {
       setMessage('Operation triggered: ' + operation);
     }
-
   };
 
   return (

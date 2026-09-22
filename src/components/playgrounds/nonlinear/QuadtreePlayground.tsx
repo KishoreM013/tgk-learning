@@ -54,7 +54,8 @@ function renderQuadTree(qt: QuadTree, key: string) {
 
 export default function QuadtreePlayground({ structure, onOperationChange }: any) {
   const [points, setPoints] = useState<Point[]>([]);
-  const [input, setInput] = useState('150, 150');
+  const [x, setX] = useState('150');
+  const [y, setY] = useState('150');
   const [operation, setOperation] = useState(structure.operations[0]);
   const [message, setMessage] = useState('Quadtree initialized (Capacity 1).');
 
@@ -63,11 +64,20 @@ export default function QuadtreePlayground({ structure, onOperationChange }: any
 
   const act = () => {
     if (operation.includes('Insert')) {
-      const parts = input.split(',').map(Number);
-      if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-        const np = { x: Math.max(0, Math.min(300, parts[0])), y: Math.max(0, Math.min(300, parts[1])), id: Date.now() };
+      const pointX = Number(x);
+      const pointY = Number(y);
+      if (!Number.isNaN(pointX) && !Number.isNaN(pointY)) {
+        const np = { x: Math.max(0, Math.min(300, pointX)), y: Math.max(0, Math.min(300, pointY)), id: Date.now() };
         setPoints([...points, np]);
-        setMessage(`Inserted point at (\${np.x}, \${np.y}). Watch it subdivide if capacity exceeds 1.`);
+        setMessage(`Inserted point at (${np.x}, ${np.y}). Watch it subdivide if capacity exceeds 1.`);
+      }
+    } else if (operation.includes('Delete')) {
+      const pointX = Number(x);
+      const pointY = Number(y);
+      if (!Number.isNaN(pointX) && !Number.isNaN(pointY)) {
+        const next = points.filter((point) => !(Math.round(point.x) === Math.round(pointX) && Math.round(point.y) === Math.round(pointY)));
+        setPoints(next);
+        setMessage(`Deleted point at (${pointX}, ${pointY}).`);
       }
     } else {
       setPoints([]);
@@ -76,7 +86,7 @@ export default function QuadtreePlayground({ structure, onOperationChange }: any
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation.includes('Insert') || operation.includes('Delete') ? [{ label: 'X coordinate', value: x, setValue: setX, inputMode: 'numeric' }, { label: 'Y coordinate', value: y, setValue: setY, inputMode: 'numeric' }] : []} message={message}>
       <div style={{ position: 'relative', width: 300, height: 300, margin: '20px auto', background: 'hsl(var(--card))' }}>
         {renderQuadTree(qt, 'root')}
         {points.map(p => (

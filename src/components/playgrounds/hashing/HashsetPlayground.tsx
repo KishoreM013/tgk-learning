@@ -19,9 +19,7 @@ export default function HashsetPlayground({ structure, onOperationChange }: any)
       return;
     }
     
-    const parts = input.split(',');
-    const key = parts[0]?.trim();
-    const val = parts[1]?.trim() || '';
+    const key = input.trim();
 
     if (!key) {
       setMessage('Please enter a valid key.');
@@ -32,10 +30,10 @@ export default function HashsetPlayground({ structure, onOperationChange }: any)
       const idx = entries.findIndex(e => e.key === key);
       const newEntries = [...entries];
       if (idx >= 0) {
-        newEntries[idx] = { key, value: val, color: 'hsl(var(--accent))' };
+        newEntries[idx] = { key, value: '', color: 'hsl(var(--accent))' };
         setMessage(`Updated ${key}.`);
       } else {
-        newEntries.push({ key, value: val, color: 'hsl(var(--destructive))' });
+        newEntries.push({ key, value: '', color: 'hsl(var(--destructive))' });
         setMessage(`Added ${key}.`);
       }
       // Reset colors of others
@@ -65,7 +63,7 @@ export default function HashsetPlayground({ structure, onOperationChange }: any)
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation.includes('Add') || operation.includes('Has') || operation.includes('Delete') ? [{ label: 'Value', value: input, setValue: setInput }] : []} message={message}>
       <div style={{ paddingTop: 20 }}>
         <HashMapVisualizer entries={entries} />
       </div>
