@@ -136,9 +136,18 @@ function StructureCard({ item }: { item: Structure }) {
 }
 
 
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ComponentType } from 'react';
 
 const toPascalCase = (str: string) => str.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('') + 'Playground';
+const playgroundComponents = new Map<string, ComponentType<any>>();
+const getPlaygroundComponent = (structure: Structure) => {
+  const key = `${structure.group}/${structure.slug}`;
+  const cached = playgroundComponents.get(key);
+  if (cached) return cached;
+  const component = lazy(() => import(`./components/playgrounds/${structure.group}/${toPascalCase(structure.slug)}.tsx`));
+  playgroundComponents.set(key, component);
+  return component;
+};
 
 function Pseudocode({ structure, operation }: { structure: Structure; operation: string }) {
   const code = operation.toLowerCase().includes('search') || operation.toLowerCase().includes('find') ? `function search(target):\n  current = root\n  while current exists:\n    if current.value == target:\n      return FOUND\n    current = next(current, target)\n  return NOT_FOUND` : operation.toLowerCase().includes('delete') || operation.toLowerCase().includes('remove') ? `function remove(target):\n  locate target and its neighbor\n  reconnect the two sides\n  release the old node\n  return updated structure` : operation.toLowerCase().includes('traverse') || operation.toLowerCase().includes('bfs') || operation.toLowerCase().includes('dfs') ? `function traverse(start):\n  frontier = [start]\n  while frontier is not empty:\n    current = take(frontier)\n    visit(current)\n    add unseen neighbors to frontier` : `function ${operation.toLowerCase().replaceAll(' ', '_')}(value):\n  choose the next position\n  preserve the structure's invariant\n  place value in the new position\n  return updated structure`;
@@ -153,7 +162,7 @@ function StructurePage({ group }: { group: Group }) {
   if (!structure) return <NotFound />;
   const operationProps = { structure, onOperationChange: setActiveOperation };
   
-  const Component = lazy(() => import(`./components/playgrounds/${structure.group}/${toPascalCase(structure.slug)}.tsx`));
+  const Component = getPlaygroundComponent(structure);
 
   return <><Topbar /><main className="tgk-shell"><section className="page-hero"><Link href="/" className="crumb" data-testid="link-back-catalog">← back to catalog</Link><h1>{structure.title}<span>.</span></h1><p>{structure.summary}</p><div className="tag-row">{structure.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></section><section className="learning-layout"><div><Suspense fallback={<div>Loading playground...</div>}><Component {...operationProps} /></Suspense><div className="notes-grid"><div className="note-card"><div className="big-o">{structure.complexity.split(' · ')[0]}</div><h3>Complexity snapshot</h3><p>{structure.complexity}</p></div><div className="note-card"><h3>Where it shows up</h3><p>{structure.realWorld}</p></div><div className="note-card"><h3>Developer note</h3><p>{structure.insight}</p></div></div></div><Pseudocode structure={structure} operation={activeOperation} /></section><div className="support-callout"><div><h2>Keep the lab open.</h2><p>Enjoyed learning? Help us improve TGK Learning by donating.</p>{supportMessage && <div className="support-message">{supportMessage}</div>}</div><button className="button-quiet" onClick={() => setSupportMessage('A donation link will be available here in a future release.')} data-testid="button-future-donation">Future donation link</button></div></main><Footer /></>;
 }
