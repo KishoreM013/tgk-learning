@@ -11,15 +11,9 @@ export default function FlowNetworksPlayground({ structure, onOperationChange }:
 
   const act = () => {
     
-    if (operation.includes('edge')) {
-      const parts = input.split(',');
-      if (parts.length >= 3) {
-        setEdges([...edges, { source: parts[0].trim(), target: parts[1].trim(), directed: true, label: parts[2].trim() }]);
-        setMessage('Added weighted edge.');
-      }
-    } else {
-      setMessage('Operation triggered: ' + operation);
-    }
+    if (operation === 'Augment path') { const edge = edges.find((item) => !item.color); if (edge) { setEdges((current) => current.map((item) => item === edge ? { ...item, color: 'hsl(var(--accent))' } : item)); setMessage(`Augmented path through ${edge.source} -> ${edge.target}.`); } else setMessage('No residual capacity remains on the visible paths.'); }
+    else if (operation === 'Cut edge') { const edge = edges.find((item) => !item.dashed); if (edge) { setEdges((current) => current.map((item) => item === edge ? { ...item, dashed: true, color: 'hsl(var(--destructive))' } : item)); setMessage(`Cut edge ${edge.source} -> ${edge.target}.`); } }
+    else { setEdges((current) => current.map((edge) => ({ ...edge, color: undefined, dashed: false }))); setMessage('Reset flow network.'); }
 
   };
 

@@ -10,22 +10,21 @@ export default function UnweightedGraphPlayground({ structure, onOperationChange
   const [message, setMessage] = useState('Graph loaded.');
 
   const act = () => {
-    if (operation.includes('Add')) {
+    const [source, target] = input.split(',').map((value) => value.trim());
+    if (operation === 'Add edge') {
       const parts = input.split(',');
-      if (parts.length >= 2) {
-        setEdges((current) => [...current, { source: parts[0].trim(), target: parts[1].trim(), directed: false }]);
-        setMessage('Added unweighted edge.');
-      }
-    } else if (operation.includes('Delete')) {
-      const parts = input.split(',');
-      if (parts.length >= 2) {
-        const source = parts[0].trim();
-        const target = parts[1].trim();
-        setEdges((current) => current.filter((edge) => !(edge.source === source && edge.target === target && edge.directed === false)));
-        setMessage(`Deleted edge ${source} — ${target}.`);
-      }
-    } else {
-      setMessage('Operation triggered: ' + operation);
+      if (parts.length >= 2 && source && target) { setEdges((current) => [...current, { source, target, directed: false }]); setMessage(`Added unweighted edge ${source} -- ${target}.`); }
+    } else if (operation === 'Delete edge') {
+      setEdges((current) => current.filter((edge) => !((edge.source === source && edge.target === target) || (edge.source === target && edge.target === source))));
+      setMessage(`Deleted edge ${source} -- ${target}.`);
+    } else if (operation === 'BFS') {
+      const visited = new Set<string>(); const order: string[] = []; const pending = ['A'];
+      while (pending.length) { const current = pending.shift()!; if (visited.has(current)) continue; visited.add(current); order.push(current); edges.filter((edge) => edge.source === current || edge.target === current).forEach((edge) => { const next = edge.source === current ? edge.target : edge.source; if (!visited.has(next)) pending.push(next); }); }
+      setNodes((current) => current.map((node) => ({ ...node, bg: visited.has(node.id) ? 'hsl(var(--accent))' : 'hsl(var(--card))' })));
+      setMessage(`BFS from A: ${order.join(' -> ')}.`);
+    } else if (operation === 'Reset') {
+      setNodes((current) => current.map((node) => ({ ...node, bg: 'hsl(var(--card))', color: 'hsl(var(--primary))' })));
+      setMessage('Reset graph.');
     }
   };
 

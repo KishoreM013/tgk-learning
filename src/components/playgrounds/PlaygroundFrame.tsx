@@ -78,7 +78,6 @@ export default function PlaygroundFrame({ title, operation, setOperation, onOper
     event.currentTarget.releasePointerCapture(event.pointerId);
   };
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
     zoomBy(event.deltaY > 0 ? -0.1 : 0.1);
   };
   const handleCanvasKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

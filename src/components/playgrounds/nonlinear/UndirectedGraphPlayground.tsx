@@ -11,14 +11,19 @@ export default function UndirectedGraphPlayground({ structure, onOperationChange
 
   const act = () => {
     
-    if (operation.includes('edge')) {
-      const parts = input.split(',');
-      if (parts.length >= 2) {
-        setEdges([...edges, { source: parts[0].trim(), target: parts[1].trim(), directed: false }]);
-        setMessage('Added unweighted edge.');
-      }
-    } else {
-      setMessage('Operation triggered: ' + operation);
+    const [from, to] = input.split(',').map((value) => value.trim());
+    if (operation === 'Add edge') {
+      if (!from || !to || !nodes.some((node) => node.id === from) || !nodes.some((node) => node.id === to)) { setMessage('Add edge requires two existing node IDs.'); return; }
+      setEdges((current) => [...current, { source: from, target: to, directed: false }]);
+      setMessage(`Added undirected edge ${from} -- ${to}.`);
+    } else if (operation === 'Delete edge') {
+      setEdges((current) => current.filter((edge) => !((edge.source === from && edge.target === to) || (edge.source === to && edge.target === from))));
+      setMessage(`Deleted undirected edge ${from} -- ${to}.`);
+    } else if (operation === 'DFS' || operation === 'BFS') {
+      const visited = new Set<string>(); const order: string[] = []; const pending = ['A'];
+      while (pending.length) { const current = operation === 'DFS' ? pending.pop()! : pending.shift()!; if (visited.has(current)) continue; visited.add(current); order.push(current); edges.filter((edge) => edge.source === current || edge.target === current).forEach((edge) => { const next = edge.source === current ? edge.target : edge.source; if (!visited.has(next)) pending.push(next); }); }
+      setNodes((current) => current.map((node) => ({ ...node, bg: visited.has(node.id) ? 'hsl(var(--secondary))' : 'hsl(var(--card))' })));
+      setMessage(`${operation} from A: ${order.join(' -> ')}.`);
     }
 
   };

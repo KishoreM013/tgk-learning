@@ -11,18 +11,29 @@ export default function DirectedGraphPlayground({ structure, onOperationChange }
   const [message, setMessage] = useState('Graph loaded.');
 
   const act = () => {
-    if (operation.includes('Add')) {
-      if (source.trim() && target.trim()) {
-        setEdges((current) => [...current, { source: source.trim(), target: target.trim(), directed: true }]);
-        setMessage('Added directed edge.');
+    const from = source.trim();
+    const to = target.trim();
+    if (operation === 'Add edge') {
+      if (!from || !to || !nodes.some((node) => node.id === from) || !nodes.some((node) => node.id === to)) { setMessage('Add edge requires two existing node IDs.'); return; }
+      if (edges.some((edge) => edge.source === from && edge.target === to)) { setMessage('That directed edge already exists.'); return; }
+      setEdges((current) => [...current, { source: from, target: to, directed: true }]);
+      setMessage(`Added directed edge ${from} -> ${to}.`);
+    } else if (operation === 'Delete edge') {
+      const next = edges.filter((edge) => !(edge.source === from && edge.target === to));
+      setEdges(next);
+      setMessage(next.length === edges.length ? `Edge ${from} -> ${to} was not found.` : `Deleted edge ${from} -> ${to}.`);
+    } else if (operation === 'DFS' || operation === 'BFS') {
+      const visited = new Set<string>();
+      const order: string[] = [];
+      const pending = ['A'];
+      while (pending.length) {
+        const current = operation === 'DFS' ? pending.pop()! : pending.shift()!;
+        if (visited.has(current)) continue;
+        visited.add(current); order.push(current);
+        edges.filter((edge) => edge.source === current).reverse().forEach((edge) => { if (!visited.has(edge.target)) pending.push(edge.target); });
       }
-    } else if (operation.includes('Delete')) {
-      if (source.trim() && target.trim()) {
-        setEdges((current) => current.filter((edge) => !(edge.source === source.trim() && edge.target === target.trim() && edge.directed === true)));
-        setMessage(`Deleted edge ${source.trim()} → ${target.trim()}.`);
-      }
-    } else {
-      setMessage('Operation triggered: ' + operation);
+      setNodes((current) => current.map((node) => ({ ...node, bg: visited.has(node.id) ? 'hsl(var(--accent))' : 'hsl(var(--card))' })));
+      setMessage(`${operation} from A: ${order.join(' -> ')}.`);
     }
   };
 

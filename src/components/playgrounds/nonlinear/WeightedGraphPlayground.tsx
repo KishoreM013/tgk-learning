@@ -12,18 +12,25 @@ export default function WeightedGraphPlayground({ structure, onOperationChange }
   const [message, setMessage] = useState('Graph loaded.');
 
   const act = () => {
-    if (operation.includes('Add')) {
+    if (operation === 'Add edge') {
       if (source.trim() && target.trim() && weight.trim() && !Number.isNaN(Number(weight))) {
         setEdges((current) => [...current, { source: source.trim(), target: target.trim(), directed: true, label: weight.trim() }]);
         setMessage('Added weighted edge.');
       }
-    } else if (operation.includes('Delete')) {
+    } else if (operation === 'Delete edge') {
       if (source.trim() && target.trim()) {
         setEdges((current) => current.filter((edge) => !(edge.source === source.trim() && edge.target === target.trim() && edge.directed === true)));
         setMessage(`Deleted weighted edge ${source.trim()} → ${target.trim()}.`);
       }
-    } else {
-      setMessage('Operation triggered: ' + operation);
+    } else if (operation === 'Dijkstra') {
+      const distance = new Map(nodes.map((node) => [node.id, Infinity])); distance.set('A', 0); const settled = new Set<string>();
+      while (settled.size < nodes.length) { const current = nodes.map((node) => node.id).filter((id) => !settled.has(id)).sort((a, b) => (distance.get(a)! - distance.get(b)!))[0]; if (!current || distance.get(current) === Infinity) break; settled.add(current); edges.filter((edge) => edge.source === current).forEach((edge) => { const next = Number(edge.label); const candidate = distance.get(current)! + next; if (candidate < distance.get(edge.target)!) distance.set(edge.target, candidate); }); }
+      setNodes((current) => current.map((node) => ({ ...node, bg: settled.has(node.id) ? 'hsl(var(--secondary))' : 'hsl(var(--card))' })));
+      setMessage(`Dijkstra from A: ${[...distance.entries()].map(([id, value]) => `${id}=${value === Infinity ? 'unreachable' : value}`).join(', ')}.`);
+    } else if (operation === 'Reset') {
+      setEdges((current) => current.map((edge) => ({ ...edge, color: undefined })));
+      setNodes((current) => current.map((node) => ({ ...node, bg: 'hsl(var(--card))', color: 'hsl(var(--primary))' })));
+      setMessage('Reset graph.');
     }
   };
 
