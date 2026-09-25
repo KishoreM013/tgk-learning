@@ -32,6 +32,18 @@ npm run build      # Create the production bundle
 npm run serve      # Preview the production bundle
 ```
 
+## Deployment
+
+The repository includes configuration for both Vercel and Netlify. Both platforms use `npm run build`, publish `dist/public`, and rewrite client-side routes to `index.html`.
+
+### Vercel
+
+Import the repository into Vercel and deploy with the detected Vite settings. The committed `vercel.json` contains the build output and SPA rewrite.
+
+### Netlify
+
+Import the repository into Netlify and deploy. The committed `netlify.toml` contains the build command, publish directory, Node version, and SPA redirect.
+
 ## Available Routes
 
 - `/` - Catalog and searchable workbench
