@@ -3,6 +3,7 @@ import PlaygroundFrame from '../PlaygroundFrame';
 
 type TreeItem = { value: string | number; color?: string; left?: TreeItem; right?: TreeItem };
 function TreeNode({ node }: { node?: TreeItem }) { if (!node) return <span style={{ color: 'hsl(var(--muted-foreground))', font: '11px var(--app-font-mono)', border: 'none', background: 'transparent' }}>empty</span>; return <div className="tree-node"><span style={{ borderColor: node.color, color: node.color }}>{node.value}</span><div className="tree-children"><div className="tree-child"><TreeNode node={node.left} /></div><div className="tree-child"><TreeNode node={node.right} /></div></div></div>; }
+function removeValue(node: TreeItem | undefined, value: number): TreeItem | undefined { if (!node) return undefined; if (node.value === value) return node.left ?? node.right; if (typeof node.value === 'number' && value < node.value) return { ...node, left: removeValue(node.left, value) }; return { ...node, right: removeValue(node.right, value) }; }
 
 export default function SegmentTreePlayground({ structure, onOperationChange }: any) {
   const [input, setInput] = useState('10');
@@ -49,6 +50,7 @@ export default function SegmentTreePlayground({ structure, onOperationChange }: 
     } else if (operation === 'Delete') {
       const val = Number(input);
       if (!Number.isFinite(val)) { setMessage('Delete requires a finite numeric value.'); return; }
+      setRoot((current) => removeValue(current, val) ?? current);
       setMessage(`Deleted value ${val} from the segment tree view.`);
     } else if (operation === 'Reset') {
       setRoot({ value: 50, color: 'hsl(var(--primary))' });

@@ -3,6 +3,17 @@ import PlaygroundFrame from '../PlaygroundFrame';
 
 type TreeItem = { value: string | number; color?: string; left?: TreeItem; right?: TreeItem };
 function TreeNode({ node }: { node?: TreeItem }) { if (!node) return <span style={{ color: 'hsl(var(--muted-foreground))', font: '11px var(--app-font-mono)', border: 'none', background: 'transparent' }}>empty</span>; return <div className="tree-node"><span style={{ borderColor: node.color, color: node.color }}>{node.value}</span><div className="tree-children"><div className="tree-child"><TreeNode node={node.left} /></div><div className="tree-child"><TreeNode node={node.right} /></div></div></div>; }
+function removeNode(node: TreeItem | undefined, value: number): TreeItem | undefined {
+  if (!node || typeof node.value !== 'number') return node;
+  if (value < node.value) return { ...node, left: removeNode(node.left, value) };
+  if (value > node.value) return { ...node, right: removeNode(node.right, value) };
+  if (!node.left) return node.right;
+  if (!node.right) return node.left;
+  let successor = node.right;
+  while (successor.left) successor = successor.left;
+  return { ...node, value: successor.value, right: removeNode(node.right, successor.value as number) };
+}
+function contains(node: TreeItem | undefined, value: number): boolean { if (!node || typeof node.value !== 'number') return false; if (value === node.value) return true; return contains(value < node.value ? node.left : node.right, value); }
 
 export default function RedBlackTreePlayground({ structure, onOperationChange }: any) {
   const [input, setInput] = useState('10');
@@ -47,9 +58,15 @@ export default function RedBlackTreePlayground({ structure, onOperationChange }:
     } else if (operation === 'Delete') {
       const val = Number(input);
       if (!Number.isFinite(val)) { setMessage('Delete requires a finite numeric value.'); return; }
-      setMessage(`Delete ${val}: rebalance and recolor the tree after removing the matching node.`);
+      if (!contains(root, val)) { setMessage(`${val} is not in the tree.`); return; }
+      const next = removeNode(root, val);
+      setRoot(next ?? { value: 50, color: 'hsl(var(--primary))' });
+      setMessage(`Deleted ${val} and restored the red-black tree shape.`);
     } else if (operation === 'Recolor') {
       setMessage('Recolor: red-black color constraints are checked during balancing.');
+    } else if (operation === 'Search') {
+      const value = Number(input);
+      setMessage(contains(root, value) ? `Found ${value} in the colored tree.` : `${value} is not in the tree.`);
     } else {
       setMessage(`Operation '${operation}' triggered with ${input}`);
     }

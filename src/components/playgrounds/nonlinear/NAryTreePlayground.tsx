@@ -21,15 +21,15 @@ export default function NAryTreePlayground({ structure, onOperationChange }: any
   const [input, setInput] = useState('Node');
   const [operation, setOperation] = useState(structure.operations[0]);
   const [message, setMessage] = useState('Tree initialized.');
-  
-  const root: NNode = useMemo(() => ({
+  const createRoot = (): NNode => ({
     value: 'Root',
     children: [
       { value: 'A', children: [{ value: 'A1' }, { value: 'A2' }] },
       { value: 'B', children: [{ value: 'B1' }] },
       { value: 'C' }
     ]
-  }), []);
+  });
+  const [root, setRoot] = useState<NNode>(createRoot);
 
   const removeNode = (node: NNode, value: string): NNode | undefined => {
     const children = node.children?.map((child) => removeNode(child, value)).filter((child): child is NNode => Boolean(child));
@@ -41,7 +41,10 @@ export default function NAryTreePlayground({ structure, onOperationChange }: any
 
   const act = () => {
     if (operation === 'Insert') {
-      setMessage(`Action triggered: ${operation} with ${input}`);
+      const value = input.trim();
+      if (!value) { setMessage('Insert requires a node value.'); return; }
+      setRoot((current) => ({ ...current, children: [...(current.children ?? []), { value }] }));
+      setMessage(`Inserted ${value} as a child of Root.`);
       return;
     }
     if (operation === 'Delete') {
@@ -51,10 +54,19 @@ export default function NAryTreePlayground({ structure, onOperationChange }: any
         setMessage(`Could not delete ${target} from the tree.`);
         return;
       }
+      setRoot(next);
       setMessage(`Deleted ${target} from the N-ary tree.`);
       return;
     }
-    setMessage(`Action triggered: ${operation} with ${input}`);
+    if (operation === 'Traverse') {
+      const values: string[] = [];
+      const visit = (node: NNode) => { values.push(node.value); node.children?.forEach(visit); };
+      visit(root);
+      setMessage(`Pre-order traversal: ${values.join(' -> ')}.`);
+      return;
+    }
+    setRoot(createRoot());
+    setMessage('Reset: restored the default N-ary tree.');
   };
 
   return (

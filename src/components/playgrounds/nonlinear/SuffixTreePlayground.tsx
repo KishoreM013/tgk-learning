@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import PlaygroundFrame from '../PlaygroundFrame';
 
 type NNode = { value: string; children?: NNode[] };
@@ -21,20 +21,16 @@ export default function SuffixTreePlayground({ structure, onOperationChange }: a
   const [input, setInput] = useState('Node');
   const [operation, setOperation] = useState(structure.operations[0]);
   const [message, setMessage] = useState('Tree initialized.');
-  
-  const root: NNode = useMemo(() => ({
-    value: 'Root',
-    children: [
-      { value: 'A', children: [{ value: 'A1' }, { value: 'A2' }] },
-      { value: 'B', children: [{ value: 'B1' }] },
-      { value: 'C' }
-    ]
-  }), []);
+  const buildSuffixRoot = (text: string): NNode => ({ value: text || 'Root', children: Array.from({ length: text.length }, (_, index) => ({ value: text.slice(index) })) });
+  const [root, setRoot] = useState<NNode>(() => buildSuffixRoot('banana'));
 
   const act = () => {
-    if (operation === 'Reset') { setMessage('Suffix tree reset.'); return; }
+    if (operation === 'Reset') { setRoot(buildSuffixRoot('banana')); setMessage('Suffix tree reset to "banana".'); return; }
     if (!input.trim()) { setMessage(`${operation} requires a non-empty text value.`); return; }
-    setMessage(`${operation} applied to "${input.trim()}".`);
+    const value = input.trim();
+    if (operation === 'Build') { setRoot(buildSuffixRoot(value)); setMessage(`Built suffix tree for "${value}".`); return; }
+    if (operation === 'Search') { setMessage(root.children?.some((suffix) => suffix.value.includes(value)) ? `Found pattern "${value}" in the suffix tree.` : `Pattern "${value}" was not found.`); return; }
+    if (operation === 'Delete') { setRoot((current) => ({ ...current, children: current.children?.filter((suffix) => suffix.value !== value) })); setMessage(`Deleted suffix "${value}" from the tree.`); }
   };
 
   return (

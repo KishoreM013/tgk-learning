@@ -79,6 +79,14 @@ export default function QuadtreePlayground({ structure, onOperationChange }: any
         setPoints(next);
         setMessage(`Deleted point at (${pointX}, ${pointY}).`);
       }
+    } else if (operation.includes('Query')) {
+      const pointX = Number(x);
+      const pointY = Number(y);
+      if (!Number.isFinite(pointX) || !Number.isFinite(pointY)) { setMessage('Query requires finite X and Y coordinates.'); return; }
+      const matches = points.filter((point) => Math.round(point.x) === Math.round(pointX) && Math.round(point.y) === Math.round(pointY));
+      setMessage(matches.length ? `Query found a point at (${pointX}, ${pointY}).` : `Query found no point at (${pointX}, ${pointY}).`);
+    } else if (operation.includes('Split')) {
+      setMessage('Split: the quadtree subdivides automatically when a region exceeds capacity.');
     } else {
       setPoints([]);
       setMessage('Reset Quadtree.');
@@ -86,7 +94,7 @@ export default function QuadtreePlayground({ structure, onOperationChange }: any
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation.includes('Insert') || operation.includes('Delete') ? [{ label: 'X coordinate', value: x, setValue: setX, inputMode: 'numeric' }, { label: 'Y coordinate', value: y, setValue: setY, inputMode: 'numeric' }] : []} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation.includes('Insert') || operation.includes('Delete') || operation.includes('Query') ? [{ label: 'X coordinate', value: x, setValue: setX, inputMode: 'numeric' }, { label: 'Y coordinate', value: y, setValue: setY, inputMode: 'numeric' }] : []} message={message}>
       <div style={{ position: 'relative', width: 300, height: 300, margin: '20px auto', background: 'hsl(var(--card))' }}>
         {renderQuadTree(qt, 'root')}
         {points.map(p => (
