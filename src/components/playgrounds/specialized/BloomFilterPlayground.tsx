@@ -20,11 +20,11 @@ export default function BloomFilterPlayground({ structure, onOperationChange }: 
       const copy = [...bits];
       indices.forEach(i => copy[i] = true);
       setBits(copy);
-      setMessage(`Added "\${input}". Hashed to bits: \${indices.join(', ')}`);
+      setMessage(`Added "${input}". Hashed to bits: ${indices.join(', ')}`);
     } else if (operation === 'Check') {
       const found = indices.every(i => bits[i]);
-      if (found) setMessage(`"\${input}" is PROBABLY in the set (Bits \${indices.join(', ')} are 1).`);
-      else setMessage(`"\${input}" is DEFINITELY NOT in the set.`);
+      if (found) setMessage(`"${input}" is PROBABLY in the set (bits ${indices.join(', ')} are 1).`);
+      else setMessage(`"${input}" is DEFINITELY NOT in the set.`);
     } else {
       setBits(new Array(16).fill(false));
       setMessage('Reset bloom filter.');
@@ -32,7 +32,7 @@ export default function BloomFilterPlayground({ structure, onOperationChange }: 
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Add' || operation === 'Check' ? [{ label: 'Value', value: input, setValue: setInput }] : []} message={message}>
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', padding: 20 }}>
         {bits.map((b, i) => (
           <div key={i} style={{ width: 40, height: 40, background: b ? 'hsl(var(--primary))' : 'hsl(var(--card))', color: b ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))', display: 'grid', placeItems: 'center', border: '1px solid hsl(var(--border))', borderRadius: 4, font: '12px var(--app-font-mono)' }}>

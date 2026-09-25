@@ -13,17 +13,18 @@ export default function DisjointSetUnionFindPlayground({ structure, onOperationC
   };
 
   const act = () => {
-    const parts = input.split(',').map(s => s.trim());
+    const parts = input.split(',').map(s => s.trim()).filter(Boolean);
     if (operation === 'Find') {
+      if (!parts[0] || !parent[parts[0]]) { setMessage('Find requires an existing item.'); return; }
       const p = find(parent, parts[0]);
-      setMessage(`Root of \${parts[0]} is \${p}`);
+      setMessage(`Root of ${parts[0]} is ${p}. Path compression points it directly to the root.`);
     } else if (operation === 'Union') {
-      if (parts.length < 2) return;
+      if (parts.length < 2 || !parent[parts[0]] || !parent[parts[1]]) { setMessage('Union requires two existing items.'); return; }
       const root1 = find(parent, parts[0]);
       const root2 = find(parent, parts[1]);
       if (root1 !== root2) {
-        setParent({...parent, [root2]: root1});
-        setMessage(`Union \${parts[0]} and \${parts[1]}. \${root2} now points to \${root1}.`);
+        setParent((current) => ({...current, [root2]: root1}));
+        setMessage(`Union ${parts[0]} and ${parts[1]}. ${root2} now points to ${root1}.`);
       } else setMessage('Already in same set.');
     } else {
       setParent({'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D'});
@@ -32,7 +33,7 @@ export default function DisjointSetUnionFindPlayground({ structure, onOperationC
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Find' ? [{ label: 'Item', value: input, setValue: setInput }] : operation === 'Union' ? [{ label: 'First, second', value: input, setValue: setInput, placeholder: 'A, B' }] : []} message={message}>
       <div style={{ display: 'flex', gap: 20, padding: 20 }}>
         {Object.entries(parent).map(([node, p]) => (
           <div key={node} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

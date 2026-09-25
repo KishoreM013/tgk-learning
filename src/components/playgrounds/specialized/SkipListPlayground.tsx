@@ -27,7 +27,7 @@ export default function SkipListPlayground({ structure, onOperationChange }: any
       
       const currentAt0 = current.next[0];
       if (currentAt0 && currentAt0.val === val) {
-        setMessage(`\${val} is already in the skip list.`);
+        setMessage(`${val} is already in the skip list.`);
         return;
       }
       
@@ -40,14 +40,14 @@ export default function SkipListPlayground({ structure, onOperationChange }: any
         update[i].next[i] = newNode;
       }
       setHead(newHead);
-      setMessage(`Inserted \${val} with height \${newLevel}.`);
+      setMessage(`Inserted ${val} with height ${newLevel}.`);
     } else if (operation === 'Search') {
       let current = head;
       for (let i = 2; i >= 0; i--) {
         while (current.next[i] && current.next[i]!.val < val) current = current.next[i]!;
       }
-      if (current.next[0] && current.next[0]!.val === val) setMessage(`Found \${val}.`);
-      else setMessage(`\${val} not found.`);
+      if (current.next[0] && current.next[0]!.val === val) setMessage(`Found ${val}.`);
+      else setMessage(`${val} not found.`);
     } else {
       setHead({ val: -Infinity, next: [null, null, null] });
       setMessage('Reset.');
@@ -63,7 +63,7 @@ export default function SkipListPlayground({ structure, onOperationChange }: any
   const nodes = getNodes();
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Insert' || operation === 'Search' ? [{ label: 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div style={{ display: 'flex', flexDirection: 'column-reverse', gap: 20, padding: 20, overflowX: 'auto' }}>
         {[0, 1, 2].map(level => {
           let curr = head.next[level];

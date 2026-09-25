@@ -153,7 +153,7 @@ function Pseudocode({ structure, operation }: { structure: Structure; operation:
 
 function StructurePage({ group }: { group: Group }) {
   const { slug } = useParams<{ slug?: string }>();
-  const structure = allStructures.find((item) => item.group === group && item.slug === slug) ?? allStructures.find((item) => item.group === group);
+  const structure = allStructures.find((item) => item.group === group && item.slug === slug);
   const [supportMessage, setSupportMessage] = useState('');
   const [activeOperation, setActiveOperation] = useState(structure?.operations[0] ?? 'Insert');
   if (!structure) return <NotFound />;

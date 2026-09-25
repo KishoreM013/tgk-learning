@@ -18,22 +18,22 @@ export default function LruCachePlayground({ structure, onOperationChange }: any
         const copy = [...items];
         const [found] = copy.splice(idx, 1);
         setItems([found, ...copy]);
-        setMessage(`Got \${k}. Moved to front.`);
-      } else setMessage(`\${k} not in cache.`);
+        setMessage(`Got ${k}. Moved to front.`);
+      } else setMessage(`${k} not in cache.`);
     } else if (operation === 'Set') {
       const idx = items.findIndex(x => x.k === k);
       let copy = [...items];
       if (idx >= 0) {
         copy.splice(idx, 1);
         copy = [{k, v}, ...copy];
-        setMessage(`Updated \${k} and moved to front.`);
+        setMessage(`Updated ${k} and moved to front.`);
       } else {
         copy = [{k, v}, ...copy];
         if (copy.length > 4) {
           copy.pop();
-          setMessage(`Added \${k}. Evicted oldest item to stay under capacity 4.`);
+          setMessage(`Added ${k}. Evicted oldest item to stay under capacity 4.`);
         } else {
-          setMessage(`Added \${k}.`);
+          setMessage(`Added ${k}.`);
         }
       }
       setItems(copy);
@@ -46,7 +46,7 @@ export default function LruCachePlayground({ structure, onOperationChange }: any
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Get' ? [{ label: 'Key', value: input, setValue: setInput }] : operation === 'Set' ? [{ label: 'Key', value: input.split(',')[0]?.trim() ?? '', setValue: (next) => setInput(`${next},${input.split(',')[1]?.trim() ?? ''}`) }, { label: 'Value', value: input.split(',')[1]?.trim() ?? '', setValue: (next) => setInput(`${input.split(',')[0]?.trim() ?? ''},${next}`) }] : []} message={message}>
       <div style={{ display: 'flex', gap: 10, padding: 20 }}>
         {items.map((it, i) => (
           <div key={it.k} style={{ padding: '10px 20px', background: i === 0 ? 'hsl(var(--accent))' : 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

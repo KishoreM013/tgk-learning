@@ -72,9 +72,10 @@ export default function BinaryHeapPlayground({ structure, onOperationChange }: a
 
   const act = () => {
     if (operation === 'Insert') {
-      const parts = input.split(',');
+      const parts = input.split(',').map((part) => part.trim());
       const val = parts[0] || 'Task';
-      const p = parseInt(parts[1]) || 5;
+      const p = Number(parts[1]);
+      if (!parts[1] || !Number.isInteger(p)) { setMessage('Insert requires a value and integer priority, for example Task C, 2.'); return; }
       
       const newHeap = [...heap, {val, p}];
       let currentIdx = newHeap.length - 1;
@@ -135,7 +136,7 @@ export default function BinaryHeapPlayground({ structure, onOperationChange }: a
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Insert' ? [{ label: 'Value, priority', value: input, setValue: setInput, placeholder: 'Task C, 2' }] : []} message={message}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <button onClick={toggleHeapType} style={{ marginBottom: 30, padding: '6px 12px', background: 'hsl(var(--accent))', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))', borderRadius: 4, cursor: 'pointer', font: '12px var(--app-font-mono)' }}>
           Mode: {isMinHeap ? 'Min-Heap (Lowest Number First)' : 'Max-Heap (Highest Number First)'}

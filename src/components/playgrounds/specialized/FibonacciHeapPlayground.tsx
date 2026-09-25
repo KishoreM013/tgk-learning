@@ -27,7 +27,7 @@ export default function FibonacciHeapPlayground({ structure, onOperationChange }
     if (operation === 'Insert') {
       if (!isNaN(val)) {
         setRoots([...roots, { id: Date.now(), val, children: [] }]);
-        setMessage(`Inserted \${val}. It's added lazily as a new root.`);
+        setMessage(`Inserted ${val}. It is added lazily as a new root.`);
       }
     } else if (operation === 'Extract') {
       if (roots.length === 0) return setMessage('Heap is empty.');
@@ -50,7 +50,12 @@ export default function FibonacciHeapPlayground({ structure, onOperationChange }
       }
       
       setRoots(consolidated);
-      setMessage(`Extracted min (\${minNode.val}). Roots consolidated.`);
+      setMessage(`Extracted min (${minNode.val}). Roots consolidated.`);
+    } else if (operation === 'Decrease key') {
+      if (!Number.isFinite(val)) { setMessage('Decrease key requires a numeric value.'); return; }
+      const next = roots.map((root) => root.val === val ? { ...root, val: val - 1 } : root);
+      setRoots(next);
+      setMessage(`Decreased key ${val} to ${val - 1}; cascading cuts would follow in a full Fibonacci heap.`);
     } else {
       setRoots([]);
       setMessage('Reset heap.');
@@ -58,7 +63,7 @@ export default function FibonacciHeapPlayground({ structure, onOperationChange }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Insert' || operation === 'Decrease key' ? [{ label: 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div style={{ display: 'flex', gap: 30, padding: 20, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {roots.map(r => (
           <div key={r.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
