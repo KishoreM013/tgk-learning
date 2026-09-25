@@ -9,7 +9,7 @@ export default function StackPlayground({ structure, onOperationChange }: any) {
 
   const act = () => {
     if (operation === 'Push') { setValues((v) => [...v, input || 'item']); setMessage(`Pushed ${input || 'item'} onto the top.`); }
-    if (operation === 'Pop') { if (values.length) { setMessage(`Popped ${values[values.length - 1]} from the top.`); setValues((v) => v.slice(0, -1)); } }
+    if (operation === 'Pop') { if (values.length) { setMessage(`Popped ${values[values.length - 1]} from the top.`); setValues((v) => v.slice(0, -1)); } else setMessage('The stack is empty.'); }
     if (operation === 'Peek') setMessage(values.length ? `Peek sees ${values[values.length - 1]}.` : 'The stack is empty.');
   };
 

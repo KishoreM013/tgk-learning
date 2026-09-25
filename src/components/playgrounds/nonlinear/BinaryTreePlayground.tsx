@@ -21,37 +21,44 @@ export default function BinaryTreePlayground({ structure, onOperationChange }: a
   }, [values]);
 
   const act = () => {
-    const number = Number(input);
-    if (!Number.isFinite(number)) return;
     if (operation === 'Insert') {
+      const number = Number(input);
+      if (!Number.isFinite(number)) {
+        setMessage('Insert requires a finite numeric value.');
+        return;
+      }
       setValues((v) => [...v, number]);
       setMessage(`Insert ${number}: place it in the next available parent slot, then continue walking the level-order structure.`);
     }
     if (operation === 'Delete') {
+      const number = Number(input);
+      if (!Number.isFinite(number)) {
+        setMessage('Delete requires a finite numeric value.');
+        return;
+      }
       if (values.length === 0) {
         setMessage('Delete: the tree is already empty.');
         return;
       }
-      const next = values.filter((value) => value !== number);
-      if (next.length === values.length) {
+      const targetIndex = values.indexOf(number);
+      if (targetIndex < 0) {
         setMessage(`Delete ${number}: value not found, so the tree structure stays unchanged.`);
         return;
       }
+      const next = [...values];
+      const replacement = next.pop();
+      if (targetIndex < next.length && replacement !== undefined) next[targetIndex] = replacement;
       setValues(next);
-      setMessage(`Delete ${number}: remove the matching node and reconnect the remaining siblings in the same level-order tree.`);
+      setMessage(`Delete ${number}: replace it with the last level-order node and restore the complete tree shape.`);
     }
     if (operation === 'Traverse') {
-      if (!values.includes(number)) {
-        setMessage(`Traverse ${number}: not found in this tree, so the walk ends without a match.`);
-        return;
-      }
-      setMessage(`Traverse ${number}: found in the tree at level-order sequence ${values.join(' → ')}; this is the path visited while checking the target.`);
+      setMessage(values.length ? `Level-order traversal: ${values.join(' → ')}.` : 'The tree is empty.');
     }
     if (operation === 'Reset') { setValues([]); setMessage('Reset: tree cleared, so the traversal stack is empty.'); }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Insert' || operation === 'Delete' ? [{ label: 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual"><TreeNode node={root} /></div>
     </PlaygroundFrame>
   );

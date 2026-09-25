@@ -10,8 +10,8 @@ export default function DequePlayground({ structure, onOperationChange }: any) {
   const act = () => {
     if (operation === 'Push back') { setValues((v) => [...v, input || 'Item']); setMessage(`Pushed ${input || 'Item'} to the back.`); }
     if (operation === 'Push front') { setValues((v) => [input || 'Item', ...v]); setMessage(`Pushed ${input || 'Item'} to the front.`); }
-    if (operation === 'Pop back') { if (values.length) { setMessage(`Popped ${values[values.length - 1]} from the back.`); setValues((v) => v.slice(0, -1)); } }
-    if (operation === 'Pop front') { if (values.length) { setMessage(`Popped ${values[0]} from the front.`); setValues((v) => v.slice(1)); } }
+    if (operation === 'Pop back') { if (values.length) { setMessage(`Popped ${values[values.length - 1]} from the back.`); setValues((v) => v.slice(0, -1)); } else setMessage('The deque is empty.'); }
+    if (operation === 'Pop front') { if (values.length) { setMessage(`Popped ${values[0]} from the front.`); setValues((v) => v.slice(1)); } else setMessage('The deque is empty.'); }
   };
 
   return (

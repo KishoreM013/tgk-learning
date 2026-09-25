@@ -157,8 +157,12 @@ a { color: inherit; text-decoration: none; }
 .playground:fullscreen .visual-stage { flex: 1; min-height: 0; }
 .playground:fullscreen .lab-body { padding: 12px 20px; }
 .lab-body { padding: 20px; }
-.lab-controls { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px; background: hsl(var(--muted) / .55); border-bottom: 1px solid hsl(var(--border)); }
-.lab-controls .field-input { width: 100px; background: hsl(var(--card)); }
+.lab-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 10px; padding: 16px 20px; background: hsl(var(--muted) / .55); border-bottom: 1px solid hsl(var(--border)); }
+.lab-control-field { display: grid; gap: 5px; min-width: 100px; }
+.lab-control-field > span { color: hsl(var(--muted-foreground)); font: 10px var(--app-font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.operation-field { min-width: 148px; }
+.lab-controls .field-input, .lab-controls .field-select { width: 100%; background: hsl(var(--card)); }
+.lab-run-button { align-self: end; }
 .lab-controls .button-primary, .lab-controls .button-quiet { padding: 9px 12px; font-size: 12px; }
 .playground-actions { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; min-width: 0; max-width: 100%; }
 .view-controls { display: inline-flex; align-items: center; border: 1px solid hsl(var(--border)); border-radius: 8px; overflow: hidden; background: hsl(var(--card)); }

@@ -9,7 +9,7 @@ export default function QueuePlayground({ structure, onOperationChange }: any) {
 
   const act = () => {
     if (operation === 'Enqueue') { setValues((v) => [...v, input || 'guest']); setMessage(`${input || 'guest'} joined at the tail.`); }
-    if (operation === 'Dequeue') { if (values.length) { setMessage(`${values[0]} left from the head.`); setValues((v) => v.slice(1)); } }
+    if (operation === 'Dequeue') { if (values.length) { setMessage(`${values[0]} left from the head.`); setValues((v) => v.slice(1)); } else setMessage('The queue is empty.'); }
     if (operation === 'Peek') setMessage(values.length ? `${values[0]} is next.` : 'The queue is empty.');
   };
 

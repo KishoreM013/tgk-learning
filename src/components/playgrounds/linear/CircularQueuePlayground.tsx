@@ -45,7 +45,7 @@ export default function CircularQueuePlayground({ structure, onOperationChange }
           <div key={i} className="array-cell" style={{ position: 'relative', borderStyle: (i === head || i === tail) ? 'dashed' : 'solid', borderColor: i === head ? 'green' : i === tail ? 'red' : undefined }}>
             {val || <span style={{ color: 'transparent' }}>_</span>}
             <span className="array-index">[{i}]</span>
-            {i === head && <div style={{ fontSize: 10, color: 'green', position: 'absolute', bottom: -20, left: 0, width: '100%', textAlign: 'center' }}>HEAD</div>}
+            {i === head && <div style={{ fontSize: 10, color: 'green', position: 'absolute', top: -20, left: 0, width: '100%', textAlign: 'center' }}>HEAD</div>}
             {i === tail && <div style={{ fontSize: 10, color: 'red', position: 'absolute', top: -20, left: 0, width: '100%', textAlign: 'center' }}>TAIL</div>}
           </div>
         ))}

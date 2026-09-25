@@ -5,6 +5,7 @@ export default function DynamicArrayPlayground({ structure, onOperationChange }:
   const [values, setValues] = useState<string[]>(['1', '2']);
   const [capacity, setCapacity] = useState(4);
   const [input, setInput] = useState('42');
+  const [index, setIndex] = useState('0');
   const [operation, setOperation] = useState('Append');
   const [message, setMessage] = useState('Capacity doubles when full.');
 
@@ -20,10 +21,16 @@ export default function DynamicArrayPlayground({ structure, onOperationChange }:
       setValues(next);
     }
     if (operation === 'Remove') {
+      const rawIndex = Number(index);
+      if (!Number.isInteger(rawIndex) || rawIndex < 0 || rawIndex >= values.length) {
+        setMessage('Remove requires a valid index in the current array range.');
+        return;
+      }
       if (values.length) {
-        const next = values.slice(0, -1);
+        const next = [...values];
+        const removed = next.splice(rawIndex, 1)[0];
         setValues(next);
-        setMessage(`Removed the last element. Array is at ${next.length}/${capacity} capacity.`);
+        setMessage(`Removed ${removed} from index ${rawIndex}. Array is at ${next.length}/${capacity} capacity.`);
       } else setMessage('Array is empty.');
     }
     if (operation === 'Search') {
@@ -33,7 +40,7 @@ export default function DynamicArrayPlayground({ structure, onOperationChange }:
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Append' || operation === 'Search' ? [{ label: 'Value', value: input, setValue: setInput }] : []} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Append' || operation === 'Search' ? [{ label: 'Value', value: input, setValue: setInput }] : operation === 'Remove' ? [{ label: 'Index', value: index, setValue: setIndex, inputMode: 'numeric' }] : []} message={message}>
       <div className="array-visual">
         {Array.from({ length: capacity }).map((_, i) => (
           <div className="array-cell" key={i} style={{ opacity: i < values.length ? 1 : 0.3, borderStyle: i < values.length ? 'solid' : 'dashed' }}>

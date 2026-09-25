@@ -13,7 +13,7 @@ export default function CircularLinkedListPlayground({ structure, onOperationCha
       setMessage(`Inserted ${input || 'Node'} into the circular list.`);
     }
     if (operation === 'Traverse') {
-      setMessage(`Traversing infinitely: ${values.join(' → ')} → ${values[0]}...`);
+      setMessage(values.length ? `Traversing infinitely: ${values.join(' → ')} → ${values[0]}...` : 'The circular list is empty.');
     }
     if (operation === 'Reset') {
       setValues(['Node 1']);
@@ -22,7 +22,7 @@ export default function CircularLinkedListPlayground({ structure, onOperationCha
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Insert' ? [{ label: 'Node value', value: input, setValue: setInput }] : []} message={message}>
       <div className="queue-visual" style={{ position: 'relative', display: 'flex', gap: 20, alignItems: 'center' }}>
         {values.map((value, i) => (
           <span key={`${value}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
