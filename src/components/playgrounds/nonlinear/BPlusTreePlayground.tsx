@@ -90,13 +90,13 @@ export default function BPlusTreePlayground({ structure, onOperationChange }: an
       if (isNaN(val)) return;
       setRoot(deleteKey(root, val));
       setMessage(`Deleted ${val} from the B+ Tree.`);
-    } else {
-      setMessage('Search/Split trigger handled visually via Insert.');
+    } else if (operation === 'Search' || operation === 'Range scan') {
+      setMessage(`${operation} ${val}: route through the index keys and scan the linked leaf records.`);
     }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Insert', 'Delete', 'Search', 'Range scan'].includes(operation) ? [{ label: 'Key', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual" style={{ paddingTop: 30 }}>
         {renderBTree(root)}
       </div>

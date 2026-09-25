@@ -90,13 +90,15 @@ export default function BTreePlayground({ structure, onOperationChange }: any) {
       if (isNaN(val)) return;
       setRoot(deleteKey(root, val));
       setMessage(`Deleted ${val} from the B-Tree.`);
+    } else if (operation === 'Search') {
+      setMessage(`Search ${val}: route through the sorted keys at each B-Tree node.`);
     } else {
-      setMessage('Search/Split trigger handled visually via Insert.');
+      setMessage('Split: full nodes are divided around their middle key during insertion.');
     }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Insert', 'Delete', 'Search'].includes(operation) ? [{ label: 'Key', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual" style={{ paddingTop: 30 }}>
         {renderBTree(root)}
       </div>

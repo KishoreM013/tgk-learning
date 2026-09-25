@@ -32,11 +32,13 @@ export default function SuffixTreePlayground({ structure, onOperationChange }: a
   }), []);
 
   const act = () => {
-    setMessage(`Action triggered: ${operation} with ${input}`);
+    if (operation === 'Reset') { setMessage('Suffix tree reset.'); return; }
+    if (!input.trim()) { setMessage(`${operation} requires a non-empty text value.`); return; }
+    setMessage(`${operation} applied to "${input.trim()}".`);
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Build', 'Search', 'Delete'].includes(operation) ? [{ label: operation === 'Build' ? 'Text' : 'Pattern', value: input, setValue: setInput }] : []} message={message}>
       <div className="tree-visual" style={{ minHeight: 300 }}><NTreeNode node={root} /></div>
     </PlaygroundFrame>
   );

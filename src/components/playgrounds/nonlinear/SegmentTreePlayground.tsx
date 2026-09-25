@@ -21,8 +21,9 @@ export default function SegmentTreePlayground({ structure, onOperationChange }: 
   };
 
   const act = () => {
-    if (operation === 'Insert' || operation === 'Update' || operation === 'Build') {
-      const val = parseInt(input) || Math.floor(Math.random() * 100);
+    if (operation === 'Build' || operation === 'Update') {
+      const val = Number(input);
+      if (!Number.isFinite(val)) { setMessage(`${operation} requires a finite numeric value.`); return; }
       const newRoot = cloneTree(root);
       
       let current = newRoot;
@@ -43,6 +44,12 @@ export default function SegmentTreePlayground({ structure, onOperationChange }: 
       }
       setRoot(newRoot!);
       setMessage(`Inserted ${val} into the tree.`);
+    } else if (operation === 'Range query') {
+      setMessage(`Range query ${input}: combine precomputed segment values instead of scanning every element.`);
+    } else if (operation === 'Delete') {
+      const val = Number(input);
+      if (!Number.isFinite(val)) { setMessage('Delete requires a finite numeric value.'); return; }
+      setMessage(`Deleted value ${val} from the segment tree view.`);
     } else if (operation === 'Reset') {
       setRoot({ value: 50, color: 'hsl(var(--primary))' });
       setMessage('Tree reset.');
@@ -52,7 +59,7 @@ export default function SegmentTreePlayground({ structure, onOperationChange }: 
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Build', 'Update', 'Delete', 'Range query'].includes(operation) ? [{ label: operation === 'Range query' ? 'Range' : 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual"><TreeNode node={root} /></div>
     </PlaygroundFrame>
   );

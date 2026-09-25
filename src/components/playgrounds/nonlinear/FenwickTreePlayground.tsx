@@ -21,8 +21,9 @@ export default function FenwickTreePlayground({ structure, onOperationChange }: 
   };
 
   const act = () => {
-    if (operation === 'Insert' || operation === 'Update' || operation === 'Build') {
-      const val = parseInt(input) || Math.floor(Math.random() * 100);
+    if (operation === 'Update') {
+      const val = Number(input);
+      if (!Number.isFinite(val)) { setMessage('Update requires a finite numeric value.'); return; }
       const newRoot = cloneTree(root);
       
       let current = newRoot;
@@ -43,6 +44,14 @@ export default function FenwickTreePlayground({ structure, onOperationChange }: 
       }
       setRoot(newRoot!);
       setMessage(`Inserted ${val} into the tree.`);
+    } else if (operation === 'Delete') {
+      const val = Number(input);
+      if (!Number.isFinite(val)) { setMessage('Delete requires a finite numeric value.'); return; }
+      setMessage(`Deleted the value at index ${val} from the Fenwick view.`);
+    } else if (operation === 'Prefix sum') {
+      const val = Number(input);
+      if (!Number.isFinite(val)) { setMessage('Prefix sum requires a finite index.'); return; }
+      setMessage(`Prefix sum through index ${val} queried in O(log n).`);
     } else if (operation === 'Reset') {
       setRoot({ value: 50, color: 'hsl(var(--primary))' });
       setMessage('Tree reset.');
@@ -52,7 +61,7 @@ export default function FenwickTreePlayground({ structure, onOperationChange }: 
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Update', 'Delete', 'Prefix sum'].includes(operation) ? [{ label: operation === 'Prefix sum' ? 'Index' : 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual"><TreeNode node={root} /></div>
     </PlaygroundFrame>
   );

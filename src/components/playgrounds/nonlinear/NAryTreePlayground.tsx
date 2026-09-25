@@ -58,7 +58,7 @@ export default function NAryTreePlayground({ structure, onOperationChange }: any
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation === 'Insert' || operation === 'Delete' ? [{ label: 'Node value', value: input, setValue: setInput }] : []} message={message}>
       <div className="tree-visual" style={{ minHeight: 300 }}><NTreeNode node={root} /></div>
     </PlaygroundFrame>
   );

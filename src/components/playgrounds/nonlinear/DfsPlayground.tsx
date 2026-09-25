@@ -37,7 +37,7 @@ export default function DfsPlayground({ structure, onOperationChange }: any) {
  };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={[]} message={message}>
       <GraphVisualizer nodes={nodes} edges={edges} />
     </PlaygroundFrame>
   );

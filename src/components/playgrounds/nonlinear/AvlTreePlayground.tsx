@@ -112,8 +112,8 @@ export default function AvlTreePlayground({ structure, onOperationChange }: any)
   }, [values]);
 
   const act = () => {
-    const num = parseInt(input);
-    if (!Number.isFinite(num)) return;
+    const num = Number(input);
+    if (!Number.isFinite(num)) { setMessage('This operation requires a finite numeric value.'); return; }
     if (operation === 'Insert') {
       if (!values.includes(num)) {
         setValues([...values, num]);
@@ -137,7 +137,7 @@ export default function AvlTreePlayground({ structure, onOperationChange }: any)
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Insert', 'Delete', 'Search'].includes(operation) ? [{ label: 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual">
         <TreeNode node={root} />
       </div>

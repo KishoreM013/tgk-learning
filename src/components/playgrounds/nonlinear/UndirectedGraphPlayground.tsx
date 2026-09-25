@@ -24,7 +24,7 @@ export default function UndirectedGraphPlayground({ structure, onOperationChange
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={operation.includes('edge') ? [{ label: 'Source node', value: input.split(',')[0]?.trim() ?? '', setValue: (value) => setInput(`${value},${input.split(',')[1]?.trim() ?? ''}`) }, { label: 'Target node', value: input.split(',')[1]?.trim() ?? '', setValue: (value) => setInput(`${input.split(',')[0]?.trim() ?? ''},${value}`) }] : []} message={message}>
       <GraphVisualizer nodes={nodes} edges={edges} />
     </PlaygroundFrame>
   );

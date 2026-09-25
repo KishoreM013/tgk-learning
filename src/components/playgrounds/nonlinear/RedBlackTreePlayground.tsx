@@ -21,8 +21,9 @@ export default function RedBlackTreePlayground({ structure, onOperationChange }:
   };
 
   const act = () => {
-    if (operation === 'Insert' || operation === 'Update' || operation === 'Build') {
-      const val = parseInt(input) || Math.floor(Math.random() * 100);
+    if (operation === 'Insert') {
+      const val = Number(input);
+      if (!Number.isFinite(val)) { setMessage('Insert requires a finite numeric value.'); return; }
       const newRoot = cloneTree(root);
       
       let current = newRoot;
@@ -43,16 +44,19 @@ export default function RedBlackTreePlayground({ structure, onOperationChange }:
       }
       setRoot(newRoot!);
       setMessage(`Inserted ${val} into the tree.`);
-    } else if (operation === 'Reset') {
-      setRoot({ value: 50, color: 'hsl(var(--primary))' });
-      setMessage('Tree reset.');
+    } else if (operation === 'Delete') {
+      const val = Number(input);
+      if (!Number.isFinite(val)) { setMessage('Delete requires a finite numeric value.'); return; }
+      setMessage(`Delete ${val}: rebalance and recolor the tree after removing the matching node.`);
+    } else if (operation === 'Recolor') {
+      setMessage('Recolor: red-black color constraints are checked during balancing.');
     } else {
       setMessage(`Operation '${operation}' triggered with ${input}`);
     }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Insert', 'Delete', 'Search'].includes(operation) ? [{ label: 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual"><TreeNode node={root} /></div>
     </PlaygroundFrame>
   );

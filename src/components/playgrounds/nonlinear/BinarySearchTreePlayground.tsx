@@ -24,7 +24,7 @@ export default function BinarySearchTreePlayground({ structure, onOperationChang
 
   const act = () => {
     const number = Number(input);
-    if (!Number.isFinite(number)) return;
+    if (!Number.isFinite(number)) { setMessage('This operation requires a finite numeric value.'); return; }
     if (operation === 'Insert') {
       if (values.includes(number)) {
         setMessage(`Insert ${number}: value already exists; BST insertion stops once the duplicate is detected.`);
@@ -70,17 +70,13 @@ export default function BinarySearchTreePlayground({ structure, onOperationChang
       setMessage(`Search ${number}: path ${path.join(' -> ')} ends without a match, so the value is not in the BST.`);
     }
     if (operation === 'Traverse') {
-      if (!values.includes(number)) {
-        setMessage(`Traverse ${number}: not found in the BST, so the in-order walk ends without a match.`);
-        return;
-      }
       const sorted = [...values].sort((a, b) => a - b);
-      setMessage(`Traverse ${number}: in-order walk visits ${sorted.join(' -> ')}; ${number} is found in the ordering and is part of the current BST path.`);
+      setMessage(`In-order traversal: ${sorted.join(' -> ')}.`);
     }
   };
 
   return (
-    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} input={input} setInput={setInput} message={message}>
+    <PlaygroundFrame title={structure.title} operation={operation} setOperation={setOperation} onOperationChange={onOperationChange} operations={structure.operations} onAction={act} fields={['Insert', 'Delete', 'Search'].includes(operation) ? [{ label: 'Value', value: input, setValue: setInput, inputMode: 'numeric' }] : []} message={message}>
       <div className="tree-visual"><TreeNode node={root} /></div>
     </PlaygroundFrame>
   );

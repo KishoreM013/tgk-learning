@@ -49,12 +49,6 @@ const nonlinear: Structure[] = [
   make('nonlinear', 'Undirected Graph', 'A network where every connection can be traveled both ways.', 'Social graphs, meshes, and network topology.', 'Traverse O(V + E)', 'Connectivity is about reachable components, not a root.', ['Add edge', 'Delete edge', 'DFS', 'BFS']),
   make('nonlinear', 'Weighted Graph', 'A graph whose edges carry a cost, distance, or preference.', 'Road networks and network routing.', 'Dijkstra O((V + E) log V)', 'The cheapest path is a sequence of local choices plus global bookkeeping.', ['Add edge', 'Delete edge', 'Dijkstra', 'Reset']),
   make('nonlinear', 'Unweighted Graph', 'A graph where every edge counts as one step.', 'Friend hops and minimum-transfer problems.', 'BFS shortest path O(V + E)', 'Breadth-first layers are distance when every edge costs the same.', ['Add edge', 'Delete edge', 'BFS', 'Reset']),
-  make('nonlinear', 'DFS', 'Depth-first search follows one path until it cannot continue.', 'Maze solving, cycle detection, and compilers.', 'Time O(V + E)', 'A stack remembers the frontier while recursion makes the shape visible.', ['Start DFS', 'Step', 'Reset']),
-  make('nonlinear', 'BFS', 'Breadth-first search expands a graph in tidy distance layers.', 'Shortest unweighted paths and crawlers.', 'Time O(V + E)', 'A queue turns the frontier into a reliable wave.', ['Start BFS', 'Step', 'Reset']),
-  make('nonlinear', 'Dijkstra', 'A shortest-path algorithm for non-negative weighted edges.', 'GPS routing and packet networks.', 'O((V + E) log V)', 'The next closest unsettled node is safe to finalize.', ['Relax edge', 'Next node', 'Reset']),
-  make('nonlinear', 'Kruskal', 'Build a minimum spanning tree by accepting the cheapest safe edges.', 'Network cable planning and clustering.', 'O(E log E)', 'Union-find prevents a tempting cheap edge from closing a cycle.', ['Sort edges', 'Accept edge', 'Reset']),
-  make('nonlinear', 'Prim', 'Grow a minimum spanning tree outward from one chosen node.', 'Power grids and connected infrastructure.', 'O(E log V)', 'The boundary between the tree and the unknown is the key state.', ['Add edge', 'Grow tree', 'Reset']),
-  make('nonlinear', 'Topological Sort', 'Order directed work so every prerequisite arrives first.', 'Build systems, course planning, and package managers.', 'O(V + E)', 'A valid order exists only when the dependency graph has no cycle.', ['Remove source', 'Next layer', 'Reset']),
   make('nonlinear', 'Flow Networks', 'Route limited quantities through a network of capacities.', 'Traffic, logistics, and matching problems.', 'Edmonds-Karp O(VE²)', 'The residual graph shows where capacity can still move.', ['Augment path', 'Cut edge', 'Reset']),
 ];
 const hashing: Structure[] = [
@@ -82,6 +76,9 @@ const specialized: Structure[] = [
   make('specialized', 'Skip List', 'A layered linked list that gets tree-like search without rotations.', 'Ordered indexes and concurrent collections.', 'Expected O(log n)', 'Random express lanes keep a simple node model surprisingly fast.', ['Insert', 'Search', 'Reset']),
   make('specialized', 'LRU Cache', 'A cache that evicts the item untouched for the longest time.', 'API clients, browsers, and image loading.', 'Get/set O(1)', 'A hash map finds entries; a doubly linked list remembers recency.', ['Get', 'Set', 'Evict']),
 ];
+const graphStructureNames = new Set(['Directed Graph', 'Undirected Graph', 'Weighted Graph', 'Unweighted Graph', 'Flow Networks']);
+const nonlinearGraphStructures = nonlinear.filter((item) => graphStructureNames.has(item.title));
+const nonlinearNonGraphStructures = nonlinear.filter((item) => !graphStructureNames.has(item.title));
 const allStructures = [...linear, ...nonlinear, ...hashing, ...concurrency, ...specialized];
 const groupLabel: Record<Group, string> = { linear: 'Linear', nonlinear: 'Non-Linear', hashing: 'Hashing & Maps/Sets', concurrency: 'Concurrency & Parallel', specialized: 'Specialized / Advanced' };
 const pathFor = (item: Structure) => `/${item.group}/${item.slug}`;
@@ -123,7 +120,7 @@ function Home() {
     <section className="section tgk-shell" id="catalog">
       <div className="section-head"><div><div className="eyebrow">The full workbench</div><h2>Find a structure.</h2></div><p>Every card opens a focused playground with a visual state, pseudocode, and the reasoning behind the operation.</p></div>
       <div className="catalog-tools"><div className="search-wrap"><span>/</span><input className="search-input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search the workbench" aria-label="Search structures" data-testid="input-search-structures" /></div><div className="filter-tabs">{(['all', 'hashing', 'concurrency', 'specialized'] as const).map((tab) => <button key={tab} className={filter === tab ? 'filter-tab active' : 'filter-tab'} onClick={() => setFilter(tab)} data-testid={`button-filter-${tab}`}>{tab === 'all' ? 'More structures' : groupLabel[tab]}</button>)}</div></div>
-      {filter === 'all' && !query ? <><CatalogRow title="Linear" items={spotlight('linear')} /><CatalogRow title="Non-Linear" items={spotlight('nonlinear')} /><div style={{ height: 35 }} /><CatalogRow title="More structures" items={[...hashing, ...concurrency, ...specialized]} /></> : <div className="structure-grid">{filtered.map((item) => <StructureCard key={item.slug} item={item} />)}{filtered.length === 0 && <div className="empty-state" style={{ gridColumn: '1/-1' }}>No structure matches that search. Try a shorter name.</div>}</div>}
+      {filter === 'all' && !query ? <><CatalogRow title="Linear" items={spotlight('linear')} /><CatalogRow title="Non-Linear" items={nonlinearNonGraphStructures} /><CatalogRow title="Non-Linear: Graph" items={nonlinearGraphStructures} /><div style={{ height: 35 }} /><CatalogRow title="More structures" items={[...hashing, ...concurrency, ...specialized]} /></> : <div className="structure-grid">{filtered.map((item) => <StructureCard key={item.slug} item={item} />)}{filtered.length === 0 && <div className="empty-state" style={{ gridColumn: '1/-1' }}>No structure matches that search. Try a shorter name.</div>}</div>}
     </section>
   </main><Footer /></>;
 }
